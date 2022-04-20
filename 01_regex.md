@@ -76,24 +76,23 @@ here help hello
 - in comparison to literal characters (-> e.g. simple letter or string like `hello`), metacharacters are used to represent other characters to make RegEx pattern more flexible for matches
 
 ```JavaScript
-^ // Caret: beginning of a string OR negated set (-> [^0-9] matches any character which is NOT in this set)
+^ // Caret: beginning of a string OR exclude a character set (-> [^0-9] matches any character which is NOT in this set, in other words: next character can NOT come from this set)
 
-const phoneNums = [
-  '801-766-9754',
-  '435-666-1212',
-  '801-796-8010',
-  '435-222-8013',
-];
-const regex = /^801/; // 801 in the beginning of string
-const result = phoneNums.filter((value) => regex.test(value)); //  [ '801-766-9754', '801-796-8010' ]
+  const phoneNums = [
+    '801-766-9754',
+    '435-666-1212',
+    '801-796-8010',
+    '435-222-8013',
+  ];
+  const regex = /^801/; // 801 in the beginning of string
+  const result = phoneNums.filter((value) => regex.test(value)); //  [ '801-766-9754', '801-796-8010' ]
 
 $ // Dollar sign: end of a string
 . // Wildcard: represents any single character with the exception of some control characters like new line
 
-const reg = /h.t/g
-const text = 'that hot? h@th t hoot'
-text.match(reg) // 4 matches: ['hat', 'hot', 'h@t', 'h t']
-
+  const reg = /h.t/g
+  const text = 'that hot? h@th t hoot'
+  text.match(reg) // 4 matches: ['hat', 'hot', 'h@t', 'h t']
 
 * // Asterisk or star: matches zero, one or more of the previous
 + // Plus sign: matches one or more of the previous
@@ -103,17 +102,9 @@ text.match(reg) // 4 matches: ['hat', 'hot', 'h@t', 'h t']
 :
 | // Vertical bar or pipe symbol: matches previous OR next character/group
 \ // Used to escape a special character
-/
+/ // start and end of regex definition
 () // Parenthesis: group characters
-
 [] // Square bracket: defines a set of characters
-
-const reg = /gr[ae]y/g; // a OR e inside [] produces a match for gray OR grey, but NOT graey
-const reg2 = /[a-d][ i]/g // matches every position in a text with letter a, b, c OR d followed by whitespace OR i
-
-// important: metacharacters act as literal characters in a set (-> no escaping needed)
-const reg3 = /gr[ae]y[ .]/g; // matches 'gray ', 'grey ', 'gray.', 'grey.'
-
 {} // Curly brace: matches a specified number of occurrences of the previous
 ```
 
@@ -134,16 +125,107 @@ const reg3 = /gr[ae]y[ .]/g; // matches 'gray ', 'grey ', 'gray.', 'grey.'
 \v // vertical tab
 \n // newline
 \r // carriage return (zu Anfang nächste Zeile)
+\s // space: includes whitespace, tab, newline, carriage return
 ```
 
 ## Character Sets
 
+- is defined by square brackets `[]`
+
 ```JavaScript
-// gray or grey
-const reg = /gr[ae]y/g; // a OR e inside [] produces a match
+const reg = /gr[ae]y/g; // a OR e inside [] produces a match for gray OR grey, but NOT graey
+const reg2 = /[a-d][ i]/g // matches every position in a text with letter a, b, c OR d followed by whitespace OR i
+
+// important: metacharacters act as literal characters in a set (-> no escaping needed)
+const reg3 = /gr[ae]y[ .]/g; // matches 'gray ', 'grey ', 'gray.', 'grey.'
+// exception: hyphen (-) acts as metacharacter to indicate a range; need to escape it if literal character is wished, but is only mandatory where no confusion with range indication could happen
+const reg4 = /[1-4]/; // matches single number between 1 and 4
+const reg5 = /[1\-4.]/; // matches 1, -, 4 or .
+const reg6 = /[-.]/; // matches \ or .
+const reg7 = /[0-9a-zA-Z]/g; // matches all single characters when they are in range of 0-9, a-z or A-Z
+const reg8 = /1[0-5]/g; // matches all numbers from 10 to 15
 ```
 
-## Repetition
+- exclude a character set with `^`
+
+```JavaScript
+const reg = /0x[^0-9A-F]/g; // matches 0x + NO 0-9 or A-F as third character (e.g. 0xG)
+```
+
+- metacharacters that you MAY need to escape in a set
+  - `-`: if it's obvious that hyphen is in a position to indicate a range, but you wanna use it as literal character, then you have to escape it (e.g. `/[0\-4]/` -> matches 0, - or 4)
+  - `^`: if you use it at the start of a set, but you wanna use it as literal character, then you have to escape it (e.g. `/[\^0-2]/g` -> matches single caracter ^ or 0-2)
+  - `\`, `]`: always needed to escape it if you wanna use it as literal character
+
+### Shorthand for Character Sets
+
+- `\d` = `[0-9]`
+- `\w` = `[a-zA-Z0-9_]`
+- `\s` = `[ \t\r\n]`
+- `\D`, `\W`, `\S` = negate set like `[^0-9]` etc.
+
+```JavaScript
+// Exercise: pattern for telephone numbers starting with 801 and having this format nnn-nnn-nnnn
+
+const phoneNums = [
+  '801-766-9754',
+  '801-545-5454',
+  '435-666-1212',
+  '801-796-8010',
+  '435-555-9801',
+  '801-009-0909',
+  '435-222-8013',
+  '801-777-66553',
+  '801-777-665-',
+  '801-77A-6655',
+  '801-778-665',
+];
+
+const regex = /^801-\d{3}-\d{4}$/;
+
+const result = phoneNums.filter((value) => regex.test(value)); // ['801-766-9754', '801-545-5454', '801-796-8010', '801-009-0909']
+```
+
+## Repetition in Patterns
+
+- `+`: matches one OR more occurrences of the prev left character
+  - `/[A-Z]+/`: matches e.g. 'AB', 'ABC', 'AAAA' etc.
+  - `/[A-Z][a-z]+/`: matches words starting with uppercase e.g. 'Auto' etc.
+  - `/a[a-z]+/`: matches all words starting with a until next character that is NOT a lowercase letter -> e.g. 'als', 'aber' etc.
+- `?`: matches zero OR one occurrence of the prev left character
+  - `/a[a-z]?/`: matches e.g. 'a', 'ab', 'ak' etc.
+  - `/apples?/`: matches singular or plural of apple
+- `*`: matches zero OR more occurences
+  - `/a[a-z]*/`: matches e.g. 'a', 'ab', 'aaa', 'aber' etc.
+  - `/warning!*/`: matches e.g. 'warning', 'warning!!!!' etc.
+
+### Greediness and Laziness in Regular Expressions
+
+- `Greediness`: by default RegEx are greedi (= gierig), i.e. they try to match as many characters as possible
+  - matching engine grabes first whole line and then returns character by character to find the `<\/p>`
+
+```JavaScript
+const regex = /<p>.*<\/p>/;
+const text = '<p>This is first paragraph.</p><p>Paragraph number two.</p>'
+text.match(reg) // matches whole text line, even if </p> is in between, acts like /<p>.*/
+```
+
+- `Laziness`: you can make RegEx lazy (= faul), i.e. they try to match as litte as possible
+  - matching engine takes first complete match for pattern (`<p>`) and then searches character by character `<\/p>`
+
+```JavaScript
+// add ? after * to make this RegEx pattern lazy
+const regex = /<p>.*?<\/p>/;
+const text = '<p>This is first paragraph.</p><p>Paragraph number two.</p>'
+text.match(reg) // matches only first <p>...</p> or both <p>...</p> with global flag
+```
+
+### Specifying Repetition Amount
+
+- `{min, max}`: matches min to max occurrences
+- `{x}`: matches exactly x occurrences
+  - `/#[0-9A-Z]{6}/gi`: matches hex color codes e.g. #ff0000, #C0C0C0
+- `{min,}`: matches min or more occurrences
 
 ## Groupings
 
