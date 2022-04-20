@@ -96,7 +96,7 @@ $ // Dollar sign: end of a string
 
 * // Asterisk or star: matches zero, one or more of the previous
 + // Plus sign: matches one or more of the previous
-? // Question mark: matches zero OR one of the previous
+? // Question mark: a) matches zero OR one of the previous, b) forces previous left expression in a pattern to be lazy
 =
 !
 :
@@ -201,24 +201,36 @@ const result = phoneNums.filter((value) => regex.test(value)); // ['801-766-9754
 
 ### Greediness and Laziness in Regular Expressions
 
-- `Greediness`: by default RegEx are greedi (= gierig), i.e. they try to match as many characters as possible
+- `Greediness`: by default(!) RegEx are greedy (= gierig), i.e. they try to match as many characters as possible
+
   - matching engine grabes first whole line and then returns character by character to find the `<\/p>`
 
-```JavaScript
-const regex = /<p>.*<\/p>/;
-const text = '<p>This is first paragraph.</p><p>Paragraph number two.</p>'
-text.match(reg) // matches whole text line, even if </p> is in between, acts like /<p>.*/
-```
+  ```JavaScript
+  const regex = /<p>.*<\/p>/;
+  const text = '<p>This is first paragraph.</p><p>Paragraph number two.</p>'
+  text.match(reg) // matches whole text line, even if </p> is in between, acts like /<p>.*/
+  ```
 
-- `Laziness`: you can make RegEx lazy (= faul), i.e. they try to match as litte as possible
+- `Laziness`: you can make RegEx lazy (= faul) with `?`, i.e. they try to match as litte as possible
+
   - matching engine takes first complete match for pattern (`<p>`) and then searches character by character `<\/p>`
 
-```JavaScript
-// add ? after * to make this RegEx pattern lazy
-const regex = /<p>.*?<\/p>/;
-const text = '<p>This is first paragraph.</p><p>Paragraph number two.</p>'
-text.match(reg) // matches only first <p>...</p> or both <p>...</p> with global flag
-```
+  ```JavaScript
+  const regex = /<p>.*?<\/p>/; // add ? after * to make this RegEx pattern lazy
+  const text = '<p>This is first paragraph.</p><p>Paragraph number two.</p>'
+  text.match(reg) // matches only first <p>...</p> or both <p>...</p> with global flag
+  ```
+
+  ```JavaScript
+  // example: lazy digits pattern
+  const regex = /\d{2,3}?/g; // ? makes, that pattern matches minimum, here only 2 digits
+  const text = '1 23344 24'
+  text.match(reg) // ['23', '34', '24']
+
+  const regex = /\d{2,3}?-/g; // with following hypen, lazy "?" is not import anymore
+  const text = '12- 23344 244-'
+  text.match(reg) // ['12-', '244-']
+  ```
 
 ### Specifying Repetition Amount
 
