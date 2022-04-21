@@ -42,6 +42,13 @@ console.log(txt.match(regex1));
 console.log(txt.split(space)); // -> ['Programming', 'always' ...]
 ```
 
+## Recommendations for Accurate Regular Expressions
+
+- when possible, define the quantity of repeated expressions
+- narrow the scope (-> wildcard, number, letters, specific number ...) of repeated expressions
+- provide clear starting and ending points (-> anchors `^`, `$`, `\b` or `\B`)
+- test RegEx with multiple data sets
+
 ## Regular Expressions Flags (-> Modifiers)
 
 - `/pattern/flags;` or `new RegExp('pattern', 'flags')`
@@ -67,8 +74,8 @@ console.log(txt.match(sInsensitivFollowedBySpace)); // -> 3 matches
 
 ```JavaScript
 const foo = /hello/;
-
-here help hello
+const text = 'here help hello';
+foo.test(text);
 ```
 
 ## Metacharacters
@@ -76,7 +83,7 @@ here help hello
 - in comparison to literal characters (-> e.g. simple letter or string like `hello`), metacharacters are used to represent other characters to make RegEx pattern more flexible for matches
 
 ```JavaScript
-^ // Caret: beginning of a string OR exclude a character set (-> [^0-9] matches any character which is NOT in this set, in other words: next character can NOT come from this set)
+^ // Caret: a) beginning of a string OR b) exclude a character set (-> [^0-9] matches any character which is NOT in this set, in other words: next character can NOT come from this set)
 
   const phoneNums = [
     '801-766-9754',
@@ -239,9 +246,45 @@ const result = phoneNums.filter((value) => regex.test(value)); // ['801-766-9754
   - `/#[0-9A-Z]{6}/gi`: matches hex color codes e.g. #ff0000, #C0C0C0
 - `{min,}`: matches min or more occurrences
 
-## Groupings
-
 ## Anchored Expressions
+
+- allows to match at start and end of string
+  - `^`: anchors match to the start of the line
+  - `$`: anchors match to the end of the line
+- use both to restrict exactly length and shape of a string
+  - `/^\d{2}$\`: matches distinct strings '12', '25' etc.
+- `/^The\m`: with multi-line flag matches string 'The' at the start of each NEW line (nach Zeilenumbruch in one string)
+
+## Word Boundaries
+
+- to ensure that pattern matches only an entire word
+
+  - `\b`: word boundary; pattern bounded by a non-word character
+  - `\B`: Nonword boundary; pattern bounded by a word character
+  - these metacharacters reference a position, NOT an actual character
+
+  ```JavaScript
+  const regex = /\bplan\b/g;
+  const text = 'Inplant this idea: plan to plant multiple trees on this planet.'
+  text.match(regex) // ['plan'] -> matches only exactly this word consisting of word caracters (= \w) and left and right non-word characters
+
+  const regex2 = /\bplan to\b/g;
+  text.match(regex2) // ['plan to']
+
+  const regex3 = /\bplan/g;
+  text.match(regex3) // ['plan', 'plan', 'plan'] -> matches all 'plan' with at left side a non-word character
+
+  const regex4 = /\Bplan\B/g;
+  const text2 = 'Inplant this idea'
+  text2.match(regex4) // ['plan'] -> matches 'plan' inside 'Inplant' since 'plan' is bounded at left and right by word characters
+
+  // exercise: Replace days of the week in a text with 'Monday'
+  const regex5 = /\b[mtwfs][a-z]{1,4}[nsir]day\b/gi;
+  const text3 = 'Each and every Tuesday, at the beginning of the day, we hold a staff meeting. At the Friday staff meeting, you will receive assignments for the following Thursday.';
+  const newText = text3.replace(regex5, "Monday");
+  ```
+
+## Groupings
 
 ## Lookahead Assertions
 
