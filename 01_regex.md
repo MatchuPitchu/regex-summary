@@ -284,9 +284,123 @@ const result = phoneNums.filter((value) => regex.test(value)); // ['801-766-9754
   const newText = text3.replace(regex5, "Monday");
   ```
 
+## Specifying Options with `|` (OR operator)
+
+- `|`: with OR operator, express alternatives in RegEx pattern to cover more exactly possible targets
+
+```JavaScript
+const regex = /\bmonday|tuesday|wednesday|thursday|friday|saturday|sunday\b/gi;
+
+// alternate through expressions with '|'
+const regex2 = /\b[a-z]{3}day\b|\b[a-z]{4}\b|\b[a-z]{6}day\b/gi;
+```
+
 ## Groupings
 
-## Lookahead Assertions
+- `(<regex>)`: group an expression together in a RegEx
+- advantages:
+
+  - a metacharacter would apply to the previous left group with expressions
+
+    ```JavaScript
+    // example find this pattern with a RegEx
+    const text = 'a5c3a2b1d1'
+    const regex = /([a-d][1-5]){5}/g
+
+    // example: avoid to define word boundaries (\b) on every alternative
+    const regex2 = /\b(monday|tuesday|wednesday)\b/gi;
+    ```
+
+  - you can capture a portion of a string for later use
+
+    ```JavaScript
+    // example: extract year, month, day without string split method and instead use grouping
+    const format = 'yyyy/mm/dd' // separator could be everything, m and d could be 1 or 2 digits
+
+    const data = '2018/3/9'
+    const regex = /^(\d{4})[-./](\d{1,2})[-./](\d{1,2})$/
+    const array = regex.exec(data); // ["2018/3/9", "2018", "3", "9"] -> thanks to grouping, arr of matching results includes also groups
+    ```
+
+  - you can repeat a captured text of a group with a `group backreference` (-> `\NumberOfGroupInRegExPattern`)
+
+    - NOTICE: you're NOT repeating the pattern (-> like with `{}`), you are repeating the actual captured text (-> if `9` is caputed text based on a pattern, then `9` is repeated)
+
+    ```JavaScript
+    const regex = /(yo)\1/g
+    const text = 'yoyo'
+    text.match(regex) // ['yoyo']
+
+    // example: match date with same month and day
+    const regex1 = /^(\d{4})[-./](\d{1,2})[-./]\2$/ // \2 repeats captured text of 2. group (-> '(\d{1,2})')
+    const text1 = '2018-9-9' // matches, because m and d is '9'
+
+    // example: match opening and closing HTML tag and whole text inside
+    const regex2 = /<(\w+>)[\w\s]+<\/\1/g;
+    const text2 = '<p>This is a paragraph</p>'
+    regex2.exec(text2) // ['<p>This is a paragraph</p>']
+    ```
+
+### No Capturing Group
+
+- `(?:<regex>)`: NO capturing of group; now this group:
+
+  - is NOT in output of `exec()` and
+  - can NOT referenced with `/NumberOfGroupInRegExPattern`
+
+### Naming Groups
+
+- `(?<NAME>...)` + `\k<NAME>` to name and refere to captured groups
+
+  ```JavaScript
+  // example: match opening and closing HTML tag and whole text inside
+  const regex = /<(?<tag>\w+>)[\w\s]+<\/\k<tag>/g;
+  ```
+
+### Lookahead Group
+
+- `(?=<regex>)`: positive lookahead group; a string is only a match if it is followed by this group, BUT this group will not be a part of the final matching result
+
+  ```JavaScript
+  // example: capture a domain name without the top level domain .com
+  const regex = /\w+(?=\.com)/g;
+  const text = 'www.youtube.com https://google.com posteo.com'
+  regex.exec(text); // ['youtube', 'google', 'posteo']
+  ```
+
+  - example: define a pattern for a password with help of lookahead groups
+    - NOTICE: finally, a string is finally captured only for the last expression (`.*`), BUT only if lookahead conditions are fullfilled for the string
+    - `(?=.{8,})`: looks if string has at least 8 characters, BUT this group does NOT capture any of those
+    - `(?=.*[A-Z])`, `(?=.*[a-z])`, `(?=.*[0-9])`: second until forth group starts also directly in beginning of string (`^`), because a lookahead group does NOT capture anything;
+      - meaning: 0 or more wildcard characters, but at least a) 1 uppercase letter, b) 1 lowercase letter, c) 1 number
+    - `.*`: at end of string could be 0 or more wildcard characters
+
+  ```JavaScript
+  const regex = /^(?=.{8,})(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).*$/; // min 8 characters, includes min 1 uppercase, min 1 lowercase, min 1 number
+  const password = 'aB1abc23';
+  ```
+
+- `(?!<regex>)`: negative lookahead group; force the left previous pattern to only be a match if it did NOT include the negative lookahead group
+
+  - `(?!.*[0-9])`: final match does NOT include a number
+
+  ```JavaScript
+  const regex = /^(?=.{8,})(?=.*[A-Z])(?=.*[a-z])(?!.*[0-9]).*$/;
+  ```
+
+### Lookbehind Group
+
+- `(?<=<regex>)`: positive lookbehind group; similar to lookahead group, BUT match must contain the pattern of the lookbehind group before it instead of after it
+  - NOTICE: only supported in JavaScript with ES2018
+
+```JavaScript
+// example: match only numbers if $ or € sign is before
+const regex = /(?<=\$|€)\d+/g;
+const text = '$10 costs $50: 20';
+text.match(regex); // ['10', '50']
+```
+
+- `(?<!<regex>)`: negative lookbehind group
 
 ## Using Unicode
 
