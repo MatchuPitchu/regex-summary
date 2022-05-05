@@ -12,8 +12,7 @@
 - Regular Expressions are Objects
 - 2 ways to create RegEx Objects:
   - using the constructor and pass in the pattern you're looking for as argument
-    - `const regex1 = new RegExp('hello');`
-    - `regex1` becomes a regular expression obj
+    - `const regex1 = new RegExp('hello');` -> `regex1` becomes regular expression obj
   - `litteral syntax`: recommended way
     - `const regex2 = /world/;`
     - `/` starts and ends a RegEx
@@ -21,7 +20,7 @@
 - test RegEx agains value with RegEx object methods:
   - `regex.test(<testValue>)`: returns true if pattern is found in passed string or false if not
   - `regex.exec(<testValue>)`: returns array of matches and additional info (index of match in input, input value)
-    - to notice: when uses with RegEx and global flag (see below) and you find multiple matches, then exec() only returns first match, when you call it again, then it returns second match and so on
+    - Attention: when uses with RegEx and global flag (see below) and you find multiple matches, then `exec()` only returns first match, when you call it again, then it returns second match and so on
 - test Regex agains value with string wrapper object methods:
   - `testValue.match(<regex>)`: returns array of matches like `exec()`
   - `testValue.search(<regex>)`: returns index of matched string in testValue
@@ -58,7 +57,7 @@ console.log(txt.split(space)); // -> ['Programming', 'always' ...]
 - `s`: dotAll Flag: added with ECMAScript 2018, with this flag, the `wildcard` metacharacter matches all(!) characters (without the normal exception of some control characters like new line)
 
 ```JavaScript
-const txt = 'Programming courses always startS with a hello world example.'
+const txt = 'Programming courses always startS with hello world.'
 
 const sFollowedBySpace = /s\s/g;
 const sInsensitivFollowedBySpace = /s\s/gi;
@@ -70,17 +69,18 @@ console.log(txt.match(sInsensitivFollowedBySpace)); // -> 3 matches
 ## How RegEx Engine Executes Matching
 
 - engine checks character by character from the beginning if pattern matches
-  - Process: checks first character (-> every character, no only letters) of RegEx with first character of text -> if match, then check second letter of text -> if match, then check third letter of text -> if no match, then it returns to second character of text and starts checking once again against first character of RegEx -> if no match, continue with next character of text against first character of RegEx -> if no match, continue ... -> if once compllete pattern matches, then first match is returned -> if `global flag` is set, it continues checking for matches
 
-```JavaScript
-const foo = /hello/;
-const text = 'here help hello';
-foo.test(text);
-```
+  - Process: checks first character (-> every character, not only letters) of RegEx with first character of text -> if match, then check second letter of text -> if match, then check third letter of text -> if no match, then it returns to second character of text and starts checking once again against first character of RegEx -> if no match, continue with next character of text against first character of RegEx -> if no match, continue ... -> if once complete pattern matches, then first match is returned -> if `global flag` is set, it continues checking for matches
 
-## Metacharacters
+  ```JavaScript
+  const regex = /hello/;
+  const text = 'here help hello';
+  regex.test(text);
+  ```
 
-- in comparison to literal characters (-> e.g. simple letter or string like `hello`), metacharacters are used to represent other characters to make RegEx pattern more flexible for matches
+## Metacharacters: Overview, more specific below
+
+- in comparison to literal characters (-> e.g. simple letter or string like `@h_e-llo1!`), metacharacters are used to represent other characters to make RegEx pattern more flexible for matches
 
 ```JavaScript
 ^ // Caret: a) beginning of a string OR b) exclude a character set (-> [^0-9] matches any character which is NOT in this set, in other words: next character can NOT come from this set)
@@ -95,11 +95,12 @@ foo.test(text);
   const result = phoneNums.filter((value) => regex.test(value)); //  [ '801-766-9754', '801-796-8010' ]
 
 $ // Dollar sign: end of a string
+
 . // Wildcard: represents any single character with the exception of some control characters like new line
 
-  const reg = /h.t/g
+  const regex = /h.t/g
   const text = 'that hot? h@th t hoot'
-  text.match(reg) // 4 matches: ['hat', 'hot', 'h@t', 'h t']
+  text.match(regex) // 4 matches: ['hat', 'hot', 'h@t', 'h t']
 
 * // Asterisk or star: matches zero, one or more of the previous
 + // Plus sign: matches one or more of the previous
@@ -115,14 +116,14 @@ $ // Dollar sign: end of a string
 {} // Curly brace: matches a specified number of occurrences of the previous
 ```
 
-- Escaping metacharacters: use `\<metacharacter>` to include the literal value and NOT the representation (e.g. `* = wildcard`) of a metacharacter in the RegEx pattern
+- Escaping metacharacters: use `\<metacharacter>` to include the literal value and NOT the representation (e.g. `* = wildcard`, `\* = *`) of a metacharacter in the RegEx pattern
 
   - if not sure if escaping needed, use nevertheless `\` -> means only that next character is taken literally
 
   ```JavaScript
-  const reg = /d\./g
+  const regex = /d\./g
   const text = 'could word.'
-  text.match(reg) // 1 matche: ['d.'] -> without escaping 2 matches: ['d ', 'd.']
+  text.match(regex) // 1 match: ['d.'] -> without escaping 2 matches: ['d ', 'd.']
   ```
 
 ## Control Characters
@@ -140,27 +141,34 @@ $ // Dollar sign: end of a string
 - is defined by square brackets `[]`
 
 ```JavaScript
-const reg = /gr[ae]y/g; // a OR e inside [] produces a match for gray OR grey, but NOT graey
-const reg2 = /[a-d][ i]/g // matches every position in a text with letter a, b, c OR d followed by whitespace OR i
-
-// important: metacharacters act as literal characters in a set (-> no escaping needed)
-const reg3 = /gr[ae]y[ .]/g; // matches 'gray ', 'grey ', 'gray.', 'grey.'
-// exception: hyphen (-) acts as metacharacter to indicate a range; need to escape it if literal character is wished, but is only mandatory where no confusion with range indication could happen
-const reg4 = /[1-4]/; // matches single number between 1 and 4
-const reg5 = /[1\-4.]/; // matches 1, -, 4 or .
-const reg6 = /[-.]/; // matches \ or .
-const reg7 = /[0-9a-zA-Z]/g; // matches all single characters when they are in range of 0-9, a-z or A-Z
-const reg8 = /1[0-5]/g; // matches all numbers from 10 to 15
+const regex1 = /gr[ae]y/g; // a OR e inside [] produces a match for gray OR grey, but NOT graey
+const regex2 = /[a-d][ i]/g // matches every position in a text with letter a, b, c OR d followed by whitespace OR i
+const regex3 = /[0-9a-zA-Z]/g; // matches all single characters when they are in range of 0-9, a-z or A-Z
+const regex4 = /1[0-5]/g; // matches all numbers from 10 to 15
 ```
 
 - exclude a character set with `^`
 
-```JavaScript
-const reg = /0x[^0-9A-F]/g; // matches 0x + NO 0-9 or A-F as third character (e.g. 0xG)
-```
+  ```JavaScript
+  const regex = /0x[^0-9A-F]/g; // matches 0x + NO 0-9A-F as third character (e.g. matches 0xg)
+  ```
 
-- metacharacters that you MAY need to escape in a set
+- important: metacharacters act as literal characters in a set (-> no escaping needed)
+
+  ```JavaScript
+  const regex = /gr[ae]y[ .]/g; // matches 'gray ', 'grey ', 'gray.', 'grey.'
+  ```
+
+- exception: metacharacters that you MAY need to escape in a set
+
   - `-`: if it's obvious that hyphen is in a position to indicate a range, but you wanna use it as literal character, then you have to escape it (e.g. `/[0\-4]/` -> matches 0, - or 4)
+
+    ```JavaScript
+    const regex1 = /[1-4]/; // matches single number between 1 and 4
+    const regex2 = /[1\-4.]/; // matches 1, -, 4 or .
+    const regex3 = /[-.]/; // matches \ or .
+    ```
+
   - `^`: if you use it at the start of a set, but you wanna use it as literal character, then you have to escape it (e.g. `/[\^0-2]/g` -> matches single caracter ^ or 0-2)
   - `\`, `]`: always needed to escape it if you wanna use it as literal character
 
@@ -169,7 +177,7 @@ const reg = /0x[^0-9A-F]/g; // matches 0x + NO 0-9 or A-F as third character (e.
 - `\d` = `[0-9]`
 - `\w` = `[a-zA-Z0-9_]`
 - `\s` = `[ \t\r\n]`
-- `\D`, `\W`, `\S` = negate set like `[^0-9]` etc.
+- `\D`, `\W`, `\S` -> negate set like `\D = [^0-9]` etc.
 
 ```JavaScript
 // Exercise: pattern for telephone numbers starting with 801 and having this format nnn-nnn-nnnn
@@ -198,13 +206,20 @@ const result = phoneNums.filter((value) => regex.test(value)); // ['801-766-9754
 - `+`: matches one OR more occurrences of the prev left character
   - `/[A-Z]+/`: matches e.g. 'AB', 'ABC', 'AAAA' etc.
   - `/[A-Z][a-z]+/`: matches words starting with uppercase e.g. 'Auto' etc.
-  - `/a[a-z]+/`: matches all words starting with a until next character that is NOT a lowercase letter -> e.g. 'als', 'aber' etc.
+  - `/a[a-z]+/`: matches all words starting with 'a' and next characters are lowercase letters -> e.g. 'als', 'aber' etc.
 - `?`: matches zero OR one occurrence of the prev left character
   - `/a[a-z]?/`: matches e.g. 'a', 'ab', 'ak' etc.
   - `/apples?/`: matches singular or plural of apple
 - `*`: matches zero OR more occurences
   - `/a[a-z]*/`: matches e.g. 'a', 'ab', 'aaa', 'aber' etc.
   - `/warning!*/`: matches e.g. 'warning', 'warning!!!!' etc.
+
+### Specifying Repetition Amount
+
+- `{min, max}`: matches min to max occurrences
+- `{x}`: matches exactly x occurrences
+  - `/#[0-9A-Z]{6}/gi`: matches hex color codes e.g. #ff0000, #C0C0C0
+- `{min,}`: matches min or more occurrences
 
 ### Greediness and Laziness in Regular Expressions
 
@@ -234,17 +249,10 @@ const result = phoneNums.filter((value) => regex.test(value)); // ['801-766-9754
   const text = '1 23344 24'
   text.match(reg) // ['23', '34', '24']
 
-  const regex = /\d{2,3}?-/g; // with following hypen, lazy "?" is not import anymore
+  const regex = /\d{2,3}?-/g; // with following hypen, lazy "?" is not important anymore
   const text = '12- 23344 244-'
   text.match(reg) // ['12-', '244-']
   ```
-
-### Specifying Repetition Amount
-
-- `{min, max}`: matches min to max occurrences
-- `{x}`: matches exactly x occurrences
-  - `/#[0-9A-Z]{6}/gi`: matches hex color codes e.g. #ff0000, #C0C0C0
-- `{min,}`: matches min or more occurrences
 
 ## Anchored Expressions
 
@@ -252,8 +260,8 @@ const result = phoneNums.filter((value) => regex.test(value)); // ['801-766-9754
   - `^`: anchors match to the start of the line
   - `$`: anchors match to the end of the line
 - use both to restrict exactly length and shape of a string
-  - `/^\d{2}$\`: matches distinct strings '12', '25' etc.
-- `/^The\m`: with multi-line flag matches string 'The' at the start of each NEW line (nach Zeilenumbruch in one string)
+  - `/^\d{2}$/`: matches distinct strings '12', '25' etc.
+- `/^The/m`: with multi-line flag matches string 'The' at the start of each NEW line (nach Zeilenumbruch in one string)
 
 ## Word Boundaries
 
@@ -303,7 +311,7 @@ const regex2 = /\b[a-z]{3}day\b|\b[a-z]{4}\b|\b[a-z]{6}day\b/gi;
   - a metacharacter would apply to the previous left group with expressions
 
     ```JavaScript
-    // example find this pattern with a RegEx
+    // example: find 'text' pattern with a RegEx
     const text = 'a5c3a2b1d1'
     const regex = /([a-d][1-5]){5}/g
 
@@ -324,7 +332,7 @@ const regex2 = /\b[a-z]{3}day\b|\b[a-z]{4}\b|\b[a-z]{6}day\b/gi;
 
   - you can repeat a captured text of a group with a `group backreference` (-> `\NumberOfGroupInRegExPattern`)
 
-    - NOTICE: you're NOT repeating the pattern (-> like with `{}`), you are repeating the actual captured text (-> if `9` is caputed text based on a pattern, then `9` is repeated)
+    - NOTICE: you're NOT repeating the pattern (-> like `{x}`), you are repeating the actual captured text (-> if `9` is captured text based on a pattern, then `9` is repeated)
 
     ```JavaScript
     const regex = /(yo)\1/g
@@ -341,9 +349,9 @@ const regex2 = /\b[a-z]{3}day\b|\b[a-z]{4}\b|\b[a-z]{6}day\b/gi;
     regex2.exec(text2) // ['<p>This is a paragraph</p>']
     ```
 
-### No Capturing Group
+### No Capturing of Group
 
-- `(?:<regex>)`: NO capturing of group; now this group:
+- `(?:<regex>)`
 
   - is NOT in output of `exec()` and
   - can NOT referenced with `/NumberOfGroupInRegExPattern`
@@ -369,9 +377,9 @@ const regex2 = /\b[a-z]{3}day\b|\b[a-z]{4}\b|\b[a-z]{6}day\b/gi;
   ```
 
   - example: define a pattern for a password with help of lookahead groups
-    - NOTICE: finally, a string is finally captured only for the last expression (`.*`), BUT only if lookahead conditions are fullfilled for the string
+    - NOTICE: string is finally captured only for last expression (`.*`), BUT only if lookahead conditions are fullfilled for string
     - `(?=.{8,})`: looks if string has at least 8 characters, BUT this group does NOT capture any of those
-    - `(?=.*[A-Z])`, `(?=.*[a-z])`, `(?=.*[0-9])`: second until forth group starts also directly in beginning of string (`^`), because a lookahead group does NOT capture anything;
+    - `(?=.*[A-Z])`, `(?=.*[a-z])`, `(?=.*[0-9])`: 2. until 4. group starts also directly in beginning of string (`^`), because a lookahead group does NOT capture anything;
       - meaning: 0 or more wildcard characters, but at least a) 1 uppercase letter, b) 1 lowercase letter, c) 1 number
     - `.*`: at end of string could be 0 or more wildcard characters
 
@@ -382,16 +390,15 @@ const regex2 = /\b[a-z]{3}day\b|\b[a-z]{4}\b|\b[a-z]{6}day\b/gi;
 
 - `(?!<regex>)`: negative lookahead group; force the left previous pattern to only be a match if it did NOT include the negative lookahead group
 
-  - `(?!.*[0-9])`: final match does NOT include a number
-
   ```JavaScript
   const regex = /^(?=.{8,})(?=.*[A-Z])(?=.*[a-z])(?!.*[0-9]).*$/;
+  // `(?!.*[0-9])`: final match does NOT include a number
   ```
 
 ### Lookbehind Group
 
 - `(?<=<regex>)`: positive lookbehind group; similar to lookahead group, BUT match must contain the pattern of the lookbehind group before it instead of after it
-  - NOTICE: only supported in JavaScript with ES2018
+  - Attention: only supported in JavaScript with ES2018
 
 ```JavaScript
 // example: match only numbers if $ or € sign is before
