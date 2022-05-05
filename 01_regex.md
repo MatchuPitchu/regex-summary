@@ -175,7 +175,7 @@ const regex4 = /1[0-5]/g; // matches all numbers from 10 to 15
 ### Shorthand for Character Sets
 
 - `\d` = `[0-9]`
-- `\w` = `[a-zA-Z0-9_]`
+- `\w` = `[a-zA-Z0-9_]` -> Attention: `äöüÄÖÜ` NOT included
 - `\s` = `[ \t\r\n]`
 - `\D`, `\W`, `\S` -> negate set like `\D = [^0-9]` etc.
 
@@ -353,12 +353,16 @@ const regex2 = /\b[a-z]{3}day\b|\b[a-z]{4}\b|\b[a-z]{6}day\b/gi;
 // example: iterate through the data provided. Use RegEx to store names in new Array but change the order of the name so first name is listed first and last name is last
 const data = ["Jensen, Dale", "Smith, Andrea", "Jorgensen, Michael", "Vasefi, Annika", "Lopez, Monica", "Crockett, Steven"];
 const regex = /(?<last>\w+), (?<first>\w+)/; // global flag "g" not needed, could cause problem (look above info for exec())
+// a)
 const result = data.map((value) => {
   const matchResults = regex.exec(value);
-  if(arr !== null) {
+  if(matchResults !== null) {
     return `${matchResults.groups.first} ${matchResults.groups.last}`; // OR: `${matchResults[2]} ${matchResoults[1]}` without naming groups
   } else return null
 })
+
+// b)
+const result = data.map((value) => value.replace(regex, '$2 $1')); // NOT working with naming groups (?<first>), only with numbers of groups
 ```
 
 ### No Capturing of Group
@@ -448,7 +452,7 @@ text.match(regex); // ['10', '50']
 
 ## Useful Regular Expressions
 
-## Matching Email Address
+### Matching Email Address
 
 ```JavaScript
 const regex = /.+@.+\..+/g; // simple pattern
@@ -456,14 +460,14 @@ const regex = /.+@.+\..+/g; // simple pattern
 const regex2 = /^[^\s@]+@[^\s@.]+\.[^\s@.]+$/g; // exclude in some sets space, @ or .
 ```
 
-## Matching a Twitter Name
+### Matching a Twitter Name
 
 ```JavaScript
 const txt = '@flohr_mi';
 const regex = /^@?(\w+)$/g; // 0 or 1 @, captures group containing only the name without '@'
 ```
 
-## Testing Passwords
+### Testing Passwords
 
 ```JavaScript
 // 1) Create multiple RegEx, one for each criteria and test password against all
@@ -475,4 +479,18 @@ const regex4 = /[^\w\s]/g; // every non word character and no space
 
 // 2) Create one RegEx with
 const regex = /^(?=.{8,})(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[^\w\s]).*$/; // min 8 characters, includes min 1 uppercase, min 1 lowercase, min 1 number, min 1 special character
+```
+
+### Using String.replace()
+
+```JavaScript
+// 1) Basic example
+const txt = '<b>This is Bold</b>'
+const regex = /b>/g;
+const newTxt = txt.replace(regex, 'strong');
+
+// 2) Switching first and last name
+const data = ["Smith, Andrea", "Jorgensen, Michael", "Vasefi, Annika"];
+const regex = /(\w+), (\w+)/g
+const newData = data.map((value) => value.replace(regex, '$2 $1')); // NOT working with naming groups (?<first>), only with numbers of groups
 ```
