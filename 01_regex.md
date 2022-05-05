@@ -447,3 +447,32 @@ text.match(regex); // ['10', '50']
   ```
 
 ## Useful Regular Expressions
+
+## Matching Email Address
+
+```JavaScript
+const regex = /.+@.+\..+/g; // simple pattern
+
+const regex2 = /^[^\s@]+@[^\s@.]+\.[^\s@.]+$/g; // exclude in some sets space, @ or .
+```
+
+## Matching a Twitter Name
+
+```JavaScript
+const txt = '@flohr_mi';
+const regex = /^@?(\w+)$/g; // 0 or 1 @, captures group containing only the name without '@'
+```
+
+## Testing Passwords
+
+```JavaScript
+// 1) Create multiple RegEx, one for each criteria and test password against all
+const txt = 'A2BC3/>_zyxd';
+const regex1 = /^.{8,32}$/g; // length 8-32
+const regex2 = /\w/g; // letter or underscore
+const regex3 = /\d/g; // digit
+const regex4 = /[^\w\s]/g; // every non word character and no space
+
+// 2) Create one RegEx with
+const regex = /^(?=.{8,})(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[^\w\s]).*$/; // min 8 characters, includes min 1 uppercase, min 1 lowercase, min 1 number, min 1 special character
+```
