@@ -349,6 +349,18 @@ const regex2 = /\b[a-z]{3}day\b|\b[a-z]{4}\b|\b[a-z]{6}day\b/gi;
     regex2.exec(text2) // ['<p>This is a paragraph</p>']
     ```
 
+```JavaScript
+// example: iterate through the data provided. Use RegEx to store names in new Array but change the order of the name so first name is listed first and last name is last
+const data = ["Jensen, Dale", "Smith, Andrea", "Jorgensen, Michael", "Vasefi, Annika", "Lopez, Monica", "Crockett, Steven"];
+const regex = /(\w+), (\w+)/; // global flag "g" not needed, could cause problem (look above info for exec())
+const result = data.map((value) => {
+  const matchResults = regex.exec(value);
+  if(arr !== null) {
+    return `${matchResults[2]} ${matchResults[1]}`;
+  } else return null
+})
+```
+
 ### No Capturing of Group
 
 - `(?:<regex>)`
@@ -405,6 +417,7 @@ const regex2 = /\b[a-z]{3}day\b|\b[a-z]{4}\b|\b[a-z]{6}day\b/gi;
 const regex = /(?<=\$|€)\d+/g;
 const text = '$10 costs $50: 20';
 text.match(regex); // ['10', '50']
+
 ```
 
 - `(?<!<regex>)`: negative lookbehind group
