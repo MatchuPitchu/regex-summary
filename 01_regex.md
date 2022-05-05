@@ -352,11 +352,11 @@ const regex2 = /\b[a-z]{3}day\b|\b[a-z]{4}\b|\b[a-z]{6}day\b/gi;
 ```JavaScript
 // example: iterate through the data provided. Use RegEx to store names in new Array but change the order of the name so first name is listed first and last name is last
 const data = ["Jensen, Dale", "Smith, Andrea", "Jorgensen, Michael", "Vasefi, Annika", "Lopez, Monica", "Crockett, Steven"];
-const regex = /(\w+), (\w+)/; // global flag "g" not needed, could cause problem (look above info for exec())
+const regex = /(?<last>\w+), (?<first>\w+)/; // global flag "g" not needed, could cause problem (look above info for exec())
 const result = data.map((value) => {
   const matchResults = regex.exec(value);
   if(arr !== null) {
-    return `${matchResults[2]} ${matchResults[1]}`;
+    return `${matchResults.groups.first} ${matchResults.groups.last}`; // OR: `${matchResults[2]} ${matchResoults[1]}` without naming groups
   } else return null
 })
 ```
@@ -417,11 +417,33 @@ const result = data.map((value) => {
 const regex = /(?<=\$|€)\d+/g;
 const text = '$10 costs $50: 20';
 text.match(regex); // ['10', '50']
-
 ```
 
 - `(?<!<regex>)`: negative lookbehind group
 
 ## Using Unicode
+
+- unicode provides a standard uniform way for representing characters
+- specifiying unicode characters: `\UNICODE` (e.g. `\u0065`)
+- use case for unicode: characters that are not so easy to type with the keyboard; so you can copy & paste these charaters or search for the unicode <https://unicode-table.com/de/>
+  - `/[\u201C\u201D]/g` -> opening and closing quote
+
+### ES6 Unicode and u Flag
+
+- some extended Unicodes (with more than 4 characters) and the associated new `u flag` were introduced with ES6
+
+  - Violinschlüssel: `/\u{1D11E}/`
+
+  ```JavaScript
+  const gclef = "𝄞-clef";
+  const regex1 = /^.-clef/;
+  regex1.test(gclef); // false, since without u flag Violinschlüssel is considered as two charaters (since unicode is longer than 4 characters)
+
+  const regex2 = /^.-clef/u;
+  regex2.test(gclef); // true
+
+  const regex3 = /^\u{1D11E}/u;
+  regex3.test(gclef); // true
+  ```
 
 ## Useful Regular Expressions
