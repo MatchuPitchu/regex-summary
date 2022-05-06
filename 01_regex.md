@@ -365,12 +365,14 @@ const result = data.map((value) => {
 const result = data.map((value) => value.replace(regex, '$2 $1')); // NOT working with naming groups (?<first>), only with numbers of groups
 ```
 
-### No Capturing of Group
+### Non-capturing group
 
 - `(?:<regex>)`
-
-  - is NOT in output of `exec()` and
-  - can NOT referenced with `/NumberOfGroupInRegExPattern`
+  - matches `regex` but does NOT remember the match
+  - matched substring cannot be recalled from resulting array's elements `([1], ..., [n])`
+    - is NOT in output of `exec()` and
+  - matched substring cannot be recalled from predefined RegExp obj properties `($1, ..., $9)`
+    - can NOT referenced with `/NumberOfGroupInRegExPattern`
 
 ### Naming Groups
 
@@ -485,7 +487,7 @@ const regex = /^(?=.{8,})(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[^\w\s]).*$/; // 
 
 ```JavaScript
 // 1) Basic example
-const txt = '<b>This is Bold</b>'
+const txt = '<b>This is Bold</b>';
 const regex = /b>/g;
 const newTxt = txt.replace(regex, 'strong');
 
@@ -493,4 +495,23 @@ const newTxt = txt.replace(regex, 'strong');
 const data = ["Smith, Andrea", "Jorgensen, Michael", "Vasefi, Annika"];
 const regex = /(\w+), (\w+)/g
 const newData = data.map((value) => value.replace(regex, '$2 $1')); // NOT working with naming groups (?<first>), only with numbers of groups
+```
+
+### Matching a Word by another Word
+
+```JavaScript
+// 1) Match hello ... world
+const txt = 'Hello more text world is nice.';
+const regex = /\b(?:hello\W+(?:\w+\W+){0,5}world)\b/ig; // (?:\w+\W+){0,5} -> 0-5 words in between, but not part of the results as own(!) groups
+
+// 2) Match hello ... world AND world ... hello
+const txt = 'World more text hello is nice.';
+const regex = /\b(?:hello\W+(?:\w+\W+){0,5}world)|(?:world\W+(?:\w+\W+){0,5}hello)\b/ig;
+```
+
+### Validating Dates
+
+```JavaScript
+// 1) Match dd/mm/yyyy AND d/m/yy AND any other combination in between, but yyy is not valid
+const regex = /^(?<day>3[01]|[12][0-9]|0?[1-9])\/(?<month>1[0-2]|0?[1-9])\/(?<year>[0-2][0-9]{3})$/g;
 ```
