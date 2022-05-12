@@ -512,6 +512,45 @@ const regex = /\b(?:hello\W+(?:\w+\W+){0,5}world)|(?:world\W+(?:\w+\W+){0,5}hell
 ### Validating Dates
 
 ```JavaScript
-// 1) Match dd/mm/yyyy AND d/m/yy AND any other combination in between, but yyy is not valid
+// Match dd/mm/yyyy AND d/m/yy AND any other combination in between, but yyy is not valid
 const regex = /^(?<day>3[01]|[12][0-9]|0?[1-9])\/(?<month>1[0-2]|0?[1-9])\/(?<year>[0-2][0-9]{3})$/g;
+```
+
+### Capturing Matched Text
+
+```JavaScript
+// Extract all numbers and capture those numbers, then sum the numbers
+const phrase = "First number: 32; second number 100. Last number is 15.";
+const regex = /\d+/g;
+const result = phrase.match(regex).reduce((acc, currentValue) => +acc + +currentValue); // 147
+```
+
+### Discovering Information about a Match
+
+```JavaScript
+// Retrieve starting index of match, the length of the match and the actual match
+const phrase = "First number: 32; second number 100. Last number is 15.";
+const regex = /\d+/; // no global flag
+const result = regex.exec(phrase)
+console.log(result.index); // starting index of match: 14
+console.log(result[0].length); // length of the match: 2
+console.log(result[0]); // "32"
+```
+
+### Iterating over Matches
+
+```JavaScript
+// Iterate over each match and log the information to the console
+const phrase = "First number: 32; second number 100. Last number is 15.";
+const regex = /\d+/g;
+let match;
+// when used global flag with regex, exec() creates and then updates for regex Obj with each execution the property of "lastIndex" which is the first index after the last match (in other words: it's the last index where the last match stopped)
+while (match = regex.exec(phrase) !== null) { // if no match, null is returned
+  console.log('Match:', match[0]);
+  console.log('LastIndex:', regex['lastIndex']); // 16, 35, 54
+}
+
+const iterator = phrase.matchAll(regex);
+console.log(iterator.next()); // Obj with property "value", that's an array with other properties
+// with each call of next(), you are moving through matches of the string
 ```
